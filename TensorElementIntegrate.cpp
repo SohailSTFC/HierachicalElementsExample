@@ -15,7 +15,7 @@ int main(){
     for(int J=0; J<nsamples; J++){
       for(int K=0; K<nsamples; K++){
         int Igauss[ndim] = {I,J,K};
-        cout <<  setw(10) << MyRefElm.Get_xi(Igauss) << endl;
+        cout <<  setw(10) << MyRefElm.Get_wi(Igauss) << endl;
       }
     }
   }
