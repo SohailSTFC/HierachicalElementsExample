@@ -5,7 +5,7 @@
 #include <cmath>
 #include <iomanip>
 #include <iostream>
-
+#include "NumericalIntegration.hpp"
 using namespace std;
 
 //
@@ -91,30 +91,6 @@ Num LegendreShapeFuncDer(Iter I, Num dLn0, Num dLn2){
   return dNi;
 };
 
-//
-// Calculate the 1-D Chebychev
-// Sample nodes and weights that will be 
-// used for Numerical integration (xi)
-//
-template<typename Num, typename Iter>
-Num ChebychevNodeCalc(Iter I, Iter nSample){
-  Num one = Num(1.00);
-  Num two = Num(2.00);
-  Num Pi  = Num(3.141592653);
-  Num k   = Num(I);
-  Num n   = Num(nSample);
-  return MyCos<Num>( (two*k + one)*Pi/(two*n) );
-};
-
-//Calculates the integration weight 
-//at the Chebychev Node (wi)
-template<typename Num>
-Num IntegrationWeightCalc(Num xi, Num Pn){
-  Num one = Num(1.00);
-  Num two = Num(2.00);
-  return two/((one - xi*xi)*Pn*Pn);
-};
-
 
 //
 //
@@ -134,6 +110,7 @@ class LegendreElement1D
     vector<vector<Num>> dLp;  //The legendre polynomials derivatives evaluated sample ptns
     vector<vector<Num>> Phi;  //Shape function evals at sample ptns
     vector<vector<Num>> dPhi; //Shape function derivative evals at sample ptns
+    GaussLegendreIntRules<Num,Iter> IntRule;
 
     //Generates the Legendre Polynomial evals
     //on reference element
@@ -151,15 +128,12 @@ class LegendreElement1D
 	//evals on reference element
     void dPhi_eval();
 
-    //Calculates the integration weights
-    void IntWeights_eval();
 
   public:
     //Initialise the 1-D element
     LegendreElement1D(Iter pOrder_, Iter nSample_){
       SetIntegrationRule(nSample_);
       SetpOrder(pOrder_);
-      IntWeights_eval();
     };
 
     //Set the maximal p-Order (expensive routine)
@@ -263,22 +237,8 @@ template <typename Num, typename Iter>
 void LegendreElement1D<Num,Iter>::SetIntegrationRule(Iter nSample_){
   nSample = nSample_;
   for(Iter I=0; I<nSample; I++){
-    SamplePtns.push_back(ChebychevNodeCalc<Num>(I,nSample));
+    wi.push_back(IntRule.GL_weight(I,nSample));
+    SamplePtns.push_back(IntRule.GL_point(I,nSample));
   }
 };
-
-//Calculates the integration weights based on previous calculations
-template <typename Num, typename Iter>
-void LegendreElement1D<Num,Iter>::IntWeights_eval(){
-  Num two  = Num(2.0);
-  Num four = Num(4.0);
-  Num n    = Num(nSample);
-  for(Iter I=0; I<nSample; I++){
-    Num Pn = (dLp[I][nSample] - dLp[I][nSample-2])/MySqrt<Num>(four*n-two);
-    wi.push_back(IntegrationWeightCalc<Num>(SamplePtns[I], Pn));
-  }
-  Num SumWi = Zero;
-  for(Iter I=0; I<nSample; I++) SumWi +=wi[I];
-  for(Iter I=0; I<nSample; I++) wi[I] = two*wi[I]/SumWi;
-}
 #endif

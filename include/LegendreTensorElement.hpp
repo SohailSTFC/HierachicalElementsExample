@@ -71,7 +71,7 @@ Num LegendreTensorElement<Num,Iter>::Get_wi(Iter Igauss[]){
 //Calculate the n-D shape function weight
 template <typename Num, typename Iter>
 Num LegendreTensorElement<Num,Iter>::Get_Phi (Iter I[], Iter Igauss[]){
-  Num Phi = (Ref1DElm->Get_Phi (I[0], Igauss[0]));
+  Num Phi = (Ref1DElm->Get_Phi(I[0], Igauss[0]));
   if(ndim != 1) for(Iter J=1; J<ndim; J++) Phi = Phi*( Ref1DElm->Get_Phi(I[J],Igauss[J]) );
   return Phi;
 };

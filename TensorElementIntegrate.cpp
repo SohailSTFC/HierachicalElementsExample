@@ -1,8 +1,8 @@
 #include <vector>
 #include <iomanip>
 #include <iostream>
-#include "Legendre1DElement.hpp"
-#include "LegendreTensorElement.hpp"
+#include "include/Legendre1DElement.hpp"
+#include "include/LegendreTensorElement.hpp"
 
 using namespace std;
 int main(){
