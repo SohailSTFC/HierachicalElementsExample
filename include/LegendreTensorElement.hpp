@@ -30,7 +30,7 @@ class LegendreTensorElement
     {
       ndim = ndim_;
       pOrder1D=pOrder1D_; 
-	  nSample1D=nSample1D_;
+      nSample1D=nSample1D_;
       nSample = nSample1D; 
       if(ndim>1) for(Iter I=1; I<ndim; I++) nSample = nSample*nSample1D; //(Maybe use symmetry to reduce?) 
       Ref1DElm = new LegendreElement1D<Num,Iter>(pOrder1D_, nSample1D_);
