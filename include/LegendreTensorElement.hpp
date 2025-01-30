@@ -81,7 +81,7 @@ template <typename Num, typename Iter>
 Num LegendreTensorElement<Num,Iter>::Get_dPhi(Iter I[], Num J[], Iter Igauss[]){
   Num dPhi = J[0]*(Ref1DElm->Get_dPhi(I[0], Igauss[0])) + (One - J[0])*( Ref1DElm->Get_Phi(I[0],Igauss[0]) );
   if(ndim != 1){ for(Iter K=1; K<ndim; K++){
-    Num dPhi_tmp = J[0]*(Ref1DElm->Get_dPhi(I[0], Igauss[0])) + (One - J[0])*( Ref1DElm->Get_Phi(I[0],Igauss[0]) );
+    Num dPhi_tmp = J[K]*(Ref1DElm->Get_dPhi(I[K], Igauss[K])) + (One - J[K])*( Ref1DElm->Get_Phi(I[K],Igauss[K]) );
     dPhi = dPhi*dPhi_tmp;
   }}
   return dPhi;
