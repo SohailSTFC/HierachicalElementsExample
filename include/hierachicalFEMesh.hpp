@@ -150,12 +150,14 @@ void hierachicalFEMeshProblemSolver<Integer,RealNum,DIM>::CalcEFVDOFs(){
 // solve the problem
 //
 template<typename Integer, typename RealNum, Integer DIM>
-  void hierachicalFEMeshProblemSolver<Integer,RealNum,DIM>::Set_pFEMMultiFabs();
-
+  void hierachicalFEMeshProblemSolver<Integer,RealNum,DIM>::Set_pFEMMultiFabs()
+{
+/**************TODO stuff here
 
     amrex::MultiFab  VertsSolution;
     amrex::MultiFab  VertsResidual;
     std::vector<std::array<amrex::MultiFab,3>> EFVsSolution; 
     std::vector<std::array<amrex::MultiFab,3>> EFVsResidual;
+*/
 };
 #endif
