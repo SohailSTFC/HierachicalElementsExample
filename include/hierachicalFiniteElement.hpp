@@ -155,9 +155,9 @@ namespace TensorElementND{
   //
   template<typename Integer, typename RealNum, Integer DIM>
   AMREX_FORCE_INLINE
-  void calcElmJacDet_JacInv(Eigen::MatrixXd JacInv
-                          , RealNum         JacDet
-                          , const Integer isample
+  void calcElmJacDet_JacInv(Eigen::MatrixXd *JacInv
+                          , RealNum         *JacDet
+                          , const Integer Isample
                           , const Integer nVerts
                           , const std::vector<std::array<std::array<RealNum,DIM>,nSampl>>  dNiND
                           , const std::vector<std::array<RealNum,DIM>>  coord){
@@ -165,13 +165,12 @@ namespace TensorElementND{
     for(int I=0; I<DIM; I++){
       for(int J=0; J<DIM; J++){
         for(int K=0; K<nVerts; K++){
-          Jac(I,J) += dNiND[I][isample][K]*coord[J][K];
+          Jac(I,J) += dNiND[I][Isample][K]*coord[J][K];
         }
       }
     }
-
-
-
+    *JacDet = Jac.determinant();
+    *JacInv = Jac.inverse();
   }
 };//End of TensorElementND namespace
 
