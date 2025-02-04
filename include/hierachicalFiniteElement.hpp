@@ -121,7 +121,6 @@ namespace TensorElementND{
     return dNi;
   };
 
-
   //
   //  For effiency purposes one may want to
   //  store the entire shape-function and shape
@@ -131,18 +130,48 @@ namespace TensorElementND{
   //  in these cases this function can be used
   //
   template<typename Integer, typename RealNum, Integer nSampl, Integer DIM>
+  AMREX_FORCE_INLINE
   void CalcND_SF_SFD(std::vector<std::array<RealNum,nSampl>>                 NiND
                      std::vector<std::array<std::array<RealNum,DIM>,nSampl>> dNiND
                    , const std::vector<std::array<RealNum,nSampl>>           Ni1D
                    , const std::vector<std::array<RealNum,nSampl>>           dNi1D)
   {
 
-    #pragma unroll
-    for(Integer I=0; I<; I++){
+  //TODO
+/*    for(Integer I=0; I<; I++){
       NiND
       dNiND
-    }
+    }*/
   };
+
+
+  //
+  // Assume the element shape Jacobian matrix
+  // dni/dxj is only a function of the vertex
+  // contributions this kind of means that the
+  // that the other shape functions are just
+  // affine transformations of their modal
+  // coord-Shape functions
+  //
+  template<typename Integer, typename RealNum, Integer DIM>
+  AMREX_FORCE_INLINE
+  void calcElmJacDet_JacInv(Eigen::MatrixXd JacInv
+                          , RealNum         JacDet
+                          , const Integer nVerts
+                          , const std::vector<std::array<std::array<RealNum,DIM>,nSampl>>  dNiND
+                          , const std::vector<std::array<RealNum,DIM>>  coord){
+    Eigen::MatrixXd Jac = Eigen::MatrixXd::Zero(DIM, DIM);
+    for(int I=0; I<DIM; I++){
+      for(int J=0; J<DIM; J++){
+        for(int K=0; K<nVerts; K++){
+          Jac(I,J) += dNiND[I][K]*coord[J][K];
+        }
+      }
+    }
+
+
+
+  }
 };//End of TensorElementND namespace
 
 
