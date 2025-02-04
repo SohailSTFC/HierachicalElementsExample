@@ -25,6 +25,17 @@
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues>
 
+
+//
+// My libraries needed
+// for completeness
+//
+//
+#include "abstractProblem.hpp"
+
+using Mat = Eigen::MatrixXd;
+using Vec = Eigen::VectorXd;
+
 /**************************************\
 ! Hierachical FE-Mesh problem solver 
 ! class
@@ -46,7 +57,7 @@
 ! enough DOFs defined for the entirety 
 ! of the problem.
 !
-! To support h-FEM/AMR multiple of these
+! To support hp-FEM/AMR multiple of these
 ! classes must be generated
 !
 !
@@ -63,28 +74,35 @@ class hierachicalFEMeshProblemSolver{
     unsigned MINpOrder;
     unsigned MAXpOrder;
     Integer Vert_NDOFs;
-    std::vector<std::array<Integer,3>> EFV_NDOFs; //EFV-(Edge-Face-Volume)
+    std::array<Integer,3> EFV_NDOFs; //EFV-(Edge-Face-Volume)
 
     //Mappings, Iterators and distribution
     //of mesh/grid
-    const amrex::BoxArray&     nba;
+    amrex::BoxArray            *nba;
     amrex::DistributionMapping dm;
 
     //Residual and solution
     //vectors/multiFabs
-    amrex::MultiFab  VertsSolution;
-    amrex::MultiFab  VertsResidual;
-    std::vector<std::array<amrex::MultiFab,3>> EFVsSolution; //EFV-(Edge-Face-Volume)
-    std::vector<std::array<amrex::MultiFab,3>> EFVsResidual; //EFV-(Edge-Face-Volume)
+    amrex::MultiFab  *VertsSolution;
+    amrex::MultiFab  *VertsResidual;
+    std::array<amrex::MultiFab*,3> EFVsSolution; //EFV-(Edge-Face-Volume)
+    std::array<amrex::MultiFab*,3> EFVsResidual; //EFV-(Edge-Face-Volume)
 
     abstractProblem *problem; //The abstract problem your solving
 //  Solver *pAMGSolver;
 
-    void CalcEFVDOFs();
-    void Set_pFEMMultiFabs();
+    void Calc_dEFVDOFs();     //Calculates the number of DOFs
+    void Set_pFEMMultiFabs(); //Sets the MultiFabs
   public:
     //Class constructor
-    hierachicalFEMeshProblemSolver(abstractProblem *prob, unsigned MAXpOrder_, unsigned MINpOrder_);
+    hierachicalFEMeshProblemSolver(abstractProblem *prob
+                                 , unsigned MAXpOrder_
+                                 , unsigned MINpOrder_);
+
+    hierachicalFEMeshProblemSolver(abstractProblem *prob);
+
+    //Class destructor
+    ~hierachicalFEMeshProblemSolver();
 
     //Solve the equation
     void solveEquation();
@@ -100,8 +118,8 @@ class hierachicalFEMeshProblemSolver{
 //
 template<typename Integer, typename RealNum, Integer DIM>
 hierachicalFEMeshProblemSolver<Integer,RealNum,DIM>::hierachicalFEMeshProblemSolver(abstractProblem *prob
-                                                        , unsigned MAXpOrder_=2
-                                                        , unsigned MINpOrder_=1)
+                                                                                  , unsigned MAXpOrder_
+                                                                                  , unsigned MINpOrder_)
 {
   if(MAXpOrder_== 0)        throw("Zero order elements not supported MAXp");
   if(MINpOrder_== 0)        throw("Zero order elements not supported MINp");
@@ -109,9 +127,59 @@ hierachicalFEMeshProblemSolver<Integer,RealNum,DIM>::hierachicalFEMeshProblemSol
   MINpOrder = MINpOrder_;
   MAXpOrder = MAXpOrder_;
 
-  problem = new abstractProblem(*prob);
-  CalcEFVDOFs();
+  problem = prob;
+  Calc_dEFVDOFs();
+/******************************************\
+  This is a hack to generate a mesh/grid
+  quickly in AMReX just to see if the other
+  functions in the class work
+\******************************************/
+    int n_cell=16;
+    int max_grid_size=32;
+
+    amrex::IntVect domElm_lo(0,0,0);
+    amrex::IntVect domElm_hi(n_cell-1,n_cell-1,n_cell-1);
+
+    amrex::Box domain(domElm_lo,domElm_hi);
+    amrex::BoxArray ba(domain);
+    ba.maxSize(max_grid_size);
+
+    nba = new amrex::BoxArray(amrex::convert(ba,amrex::IntVect::TheNodeVector()));
+    dm = amrex::DistributionMapping(*nba);
+/******************************************\
+\******************************************/
   Set_pFEMMultiFabs();
+};
+
+// Construct the mesh class
+// for a hierachical finite
+// element problem (default setting)
+//
+template<typename Integer, typename RealNum, Integer DIM>
+hierachicalFEMeshProblemSolver<Integer,RealNum,DIM>::hierachicalFEMeshProblemSolver(abstractProblem *prob)
+ :hierachicalFEMeshProblemSolver(prob, 2, 1){};
+
+// Destruct the mesh class
+// for a hierachical finite
+// element problem
+//
+template<typename Integer, typename RealNum, Integer DIM>
+hierachicalFEMeshProblemSolver<Integer,RealNum,DIM>::~hierachicalFEMeshProblemSolver()
+{
+/*
+  //Solution Vectors
+  if(Vert_NDOFs > 0) VertsSolution = new amrex::MultiFab(nba, dm, Vert_NDOFs, nGhost);
+  for(int I=0; I<3; I++)
+    if(EFV_NDOFs[I] > 0)
+      EFVsSolution[I] = new amrex::MultiFab(nba, dm, EFV_NDOFs[0], nGhost);
+
+  //Residual Vectors
+  if(Vert_NDOFs > 0) VertsResidual = new amrex::MultiFab(nba, dm, Vert_NDOFs, nGhost);
+  for(int I=0; I<3; I++)
+    if(EFV_NDOFs[I] > 0)
+      EFVsResidual[I] = new amrex::MultiFab(nba, dm, EFV_NDOFs[0], nGhost);
+
+*/
 };
 
 
@@ -121,12 +189,16 @@ hierachicalFEMeshProblemSolver<Integer,RealNum,DIM>::hierachicalFEMeshProblemSol
 // level
 //
 template<typename Integer, typename RealNum, Integer DIM>
-void hierachicalFEMeshProblemSolver<Integer,RealNum,DIM>::CalcEFVDOFs(){
-  EFV_NDOFs.clear();
+void hierachicalFEMeshProblemSolver<Integer,RealNum,DIM>::Calc_dEFVDOFs()
+{
+  Vert_NDOFs = std::pow(2,DIM)*(problem->getNODOFVert());
+
+  //The total dofs associated with higher order
+  Integer ndofE=0, ndofF=0, ndofV=0;
   if(MAXpOrder>1){//Only quadratic or higher order have these
-    for(int I=2; I<=MAXpOrder; I++){
-      Integer ndofE=0, ndofF=0, ndofV=0; //The total dofs associated with higher order
-      Integer dnodE=0, dnodF=0, dnodV=0; //The nodes associated with higher order
+    for(int I=MINpOrder; I<=MAXpOrder; I++){
+      //The change in nodes associated with higher order
+      Integer dnodE=0, dnodF=0, dnodV=0;
       if(DIM==1) dnodE=1;
       if(DIM==2) dnodE=4;
       if(DIM==3) dnodE=12;
@@ -136,12 +208,16 @@ void hierachicalFEMeshProblemSolver<Integer,RealNum,DIM>::CalcEFVDOFs(){
 
       if(DIM==3) dnodV=3*I*I - 9*I + 7;
 
-      ndofE = dnodE*(problem->getNODOFEdge());
-      ndofF = dnodF*(problem->getNODOFFace());
-      ndofV = dnodV*(problem->getNODOFVolm());
-      EFV_NDOFs.push_back({ndofE,ndofF,ndofV});
+      ndofE += dnodE*(problem->getNODOFEdge());
+      ndofF += dnodF*(problem->getNODOFFace());
+      ndofV += dnodV*(problem->getNODOFVolm());
     }
   }
+  EFV_NDOFs[0] = ndofE;
+  EFV_NDOFs[1] = ndofF;
+  EFV_NDOFs[2] = ndofV;
+
+  if(Vert_NDOFs<0) throw std::invalid_argument("This operator is less than 0 order and/or DIM");
 };
 
 
@@ -150,14 +226,18 @@ void hierachicalFEMeshProblemSolver<Integer,RealNum,DIM>::CalcEFVDOFs(){
 // solve the problem
 //
 template<typename Integer, typename RealNum, Integer DIM>
-  void hierachicalFEMeshProblemSolver<Integer,RealNum,DIM>::Set_pFEMMultiFabs()
+void hierachicalFEMeshProblemSolver<Integer,RealNum,DIM>::Set_pFEMMultiFabs()
 {
-/**************TODO stuff here
+  //Solution Vectors
+  if(Vert_NDOFs > 0) VertsSolution = new amrex::MultiFab(*nba, dm, Vert_NDOFs, nGhost);
+  for(int I=0; I<3; I++)
+    if(EFV_NDOFs[I] > 0)
+      EFVsSolution[I] = new amrex::MultiFab(*nba, dm, EFV_NDOFs[0], nGhost);
 
-    amrex::MultiFab  VertsSolution;
-    amrex::MultiFab  VertsResidual;
-    std::vector<std::array<amrex::MultiFab,3>> EFVsSolution; 
-    std::vector<std::array<amrex::MultiFab,3>> EFVsResidual;
-*/
+  //Residual Vectors
+  if(Vert_NDOFs > 0) VertsResidual = new amrex::MultiFab(*nba, dm, Vert_NDOFs, nGhost);
+  for(int I=0; I<3; I++)
+    if(EFV_NDOFs[I] > 0)
+      EFVsResidual[I] = new amrex::MultiFab(*nba, dm, EFV_NDOFs[0], nGhost);
 };
 #endif

@@ -8,8 +8,17 @@
 #include <vector>
 #include <array>
 
+//
+// My libraries
+//
 #include "include/hierachicalFiniteElement.hpp"
+#include "include/hierachicalFEMesh.hpp"
 #include "include/integrationRules.hpp"
+
+//
+// Problem Operators
+//
+#include "sampleProblems/poissonProb.hpp"
 
 int main(int argc, char* argv[]){
 
@@ -37,6 +46,11 @@ int main(int argc, char* argv[]){
   {
     amrex::Print() << "Hi AMReX version " << amrex::Version() << "\n";
 
+
+    poissonProblem MyPoisson(AMREX_SPACEDIM);
+    hierachicalFEMeshProblemSolver<int,amrex::Real,AMREX_SPACEDIM>  MySolver(&MyPoisson);
+
+/*
     //Define a multiFab
     int Nodof=2, nod=2; 
 
@@ -57,14 +71,6 @@ int main(int argc, char* argv[]){
     amrex::DistributionMapping dm(nba);         //1-D to N-D mapping
     amrex::MultiFab mf(nba, dm, ncomp, nGhost); //Data structure
 
-/*
-    amrex::MultiFab Elems(nba, dm, nVars, nGhost); //Data structure
-    amrex::MultiFab Nodes(nba, dm, nVars, nGhost); //Data structure
-    amrex::MultiFab Edges(nba, dm, nVars, nGhost); //Data structure
-    amrex::MultiFab Faces(nba, dm, nVars, nGhost); //Data structure
-    amrex::MultiFab Volms(nba, dm, nVars, nGhost); //Data structure
-*/
-
     //Data for MultiFab
     amrex::RealBox  real_box({0.,0.,0.},{1.,1.,1.});//Physical Dimension of domain
     amrex::Geometry geom(domain, &real_box);        //Geometric object
@@ -79,13 +85,14 @@ int main(int argc, char* argv[]){
       amrex::Real z = K * dx[2];
       amrex::Real rSqaured = amrex::Real(EntityMapping::EntityTypeTest(I,J,K,pOrder_1D));
       for(int L=0; L<ncomp; L++){//Iterate over components
-        mf_arrs[nbx](I,J,K,L)  = rSqaured;//1.0 + std::exp(-r_squared);
+        mf_arrs[nbx](I,J,K,L)  = rSqaured + amrex::Real(L);//1.0 + std::exp(-r_squared);
       };
     });
 
 
     //Plot the MultiFab Data
     WriteSingleLevelPlotfile("plt001",mf,{"comp0","comp1","comp2"},geom,0.,0);
+*/
 
   }
   amrex::Finalize();

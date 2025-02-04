@@ -1,5 +1,13 @@
 #ifndef ABSTRACTPROBLEM_HPP
 #define ABSTRACTPROBLEM_HPP
+
+//
+// Standard C++ libraries
+//
+#include <vector>
+#include <array>
+
+
 /**************************************\
 ! Abstract Problem Class
 !
@@ -12,7 +20,6 @@
 ! Date  : 31/01/2025
 !
 \**************************************/
-template<Data>
 class abstractProblem{
   private:
 
@@ -21,13 +28,12 @@ class abstractProblem{
     //The number of degrees
     //of freedom on each entity
     //type
-    int getNODOFVert();
-    int getNODOFEdge();
-    int getNODOFFace();
-    int getNODOFVolm();
+    virtual int getNODOFVert() = 0;
+    virtual int getNODOFEdge() = 0;
+    virtual int getNODOFFace() = 0;
+    virtual int getNODOFVolm() = 0;
 
-    virtual void calcQpResidual(vector<Vector> *ElmVecs) = 0;
-
-    virtual void calcQpJacobian(vector<Matrix> *ElmJacs) = 0;
+    virtual void calcQpResidual() = 0;
+    virtual void calcQpJacobian() = 0;
 };
 #endif

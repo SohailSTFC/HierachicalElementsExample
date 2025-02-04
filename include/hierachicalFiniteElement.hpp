@@ -49,6 +49,23 @@ namespace EntityMapping{
     return { (I+1)%pOrder, (J+1)%pOrder, (K+1)%pOrder };
   };
 
+/*
+  AMREX_FORCE_INLINE
+  std::array<int,3> NodeNeighborElementMapping(int I, int J, int K, int pOrder){
+    return { (I+1)%pOrder, (J+1)%pOrder, (K+1)%pOrder };
+  };
+
+  AMREX_FORCE_INLINE
+  std::array<int,3> EdgeNeighborElementMapping(int I, int J, int K, int pOrder){
+    return { (I+1)%pOrder, (J+1)%pOrder, (K+1)%pOrder };
+  };
+
+  AMREX_FORCE_INLINE
+  std::array<int,3> FaceNeighborElementMapping(int I, int J, int K, int pOrder){
+    return { (I+1)%pOrder, (J+1)%pOrder, (K+1)%pOrder };
+  };
+*/
+
 };
 
 /**************************************\
@@ -132,7 +149,7 @@ namespace TensorElementND{
   template<typename Integer, typename RealNum, Integer nSampl, Integer DIM>
   AMREX_FORCE_INLINE
   void CalcND_SF_SFD(std::vector<std::array<RealNum,nSampl>>                 NiND
-                     std::vector<std::array<std::array<RealNum,DIM>,nSampl>> dNiND
+                   , std::vector<std::array<std::array<RealNum,DIM>,nSampl>> dNiND
                    , const std::vector<std::array<RealNum,nSampl>>           Ni1D
                    , const std::vector<std::array<RealNum,nSampl>>           dNi1D)
   {
@@ -153,7 +170,7 @@ namespace TensorElementND{
   // affine transformations of their modal
   // coord-Shape functions
   //
-  template<typename Integer, typename RealNum, Integer DIM>
+  template<typename Integer, typename RealNum, Integer DIM, Integer nSampl>
   AMREX_FORCE_INLINE
   void calcElmJacDet_JacInv(Eigen::MatrixXd *JacInv
                           , RealNum         *JacDet

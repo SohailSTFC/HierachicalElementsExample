@@ -18,7 +18,7 @@
 \**************************************/
 class poissonProblem : public abstractProblem{
   private:
-    const int nodofV=1, nodofE=1, nodofF=1, nodofV=1;
+    const int nodofVt=1, nodofEd=1, nodofFa=1, nodofVo=1;
     
   public:
     poissonProblem(int DIM);
@@ -26,33 +26,28 @@ class poissonProblem : public abstractProblem{
     //The number of degrees
     //of freedom on each entity
     //type
-    int getNODOFVert();
-    int getNODOFEdge();
-    int getNODOFFace();
-    int getNODOFVolm();
+    virtual int getNODOFVert();
+    virtual int getNODOFEdge();
+    virtual int getNODOFFace();
+    virtual int getNODOFVolm();
 
-    void calcQpResidual(vector<Vector> *ElmVecs);
+    virtual void calcQpResidual();
 
-    void calcQpJacobian(vector<Matrix> *ElmJacs);
+    virtual void calcQpJacobian();
 };
 
-int poissonProblem::getNODOFVert(){return nodofV;};
+poissonProblem::poissonProblem(int DIM){};
 
-int poissonProblem::getNODOFEdge(){return nodofE;};
+int poissonProblem::getNODOFVert(){return nodofVt;};
+int poissonProblem::getNODOFEdge(){return nodofEd;};
+int poissonProblem::getNODOFFace(){return nodofFa;};
+int poissonProblem::getNODOFVolm(){return nodofVo;};
 
-int poissonProblem::getNODOFFace(){return nodofF;};
 
-int poissonProblem::getNODOFVolm(){return nodofV;};
-
-
-void poissonProblem::calcQpResidual(vector<Vector> *ElmVecs){
-
+void poissonProblem::calcQpResidual(){
 };
 
 
-void poissonProblem::calcQpJacobian(vector<Matrix> *ElmJacs){
-
-
-
+void poissonProblem::calcQpJacobian(){
 };
 #endif
