@@ -217,13 +217,14 @@ void hierachicalFEMeshProblemSolver<Integer,RealNum,DIM>::Calc_dEFVDOFs()
   EFV_NDOFs[1] = ndofF;
   EFV_NDOFs[2] = ndofV;
 
-  if(Vert_NDOFs<0) throw std::invalid_argument("This operator is less than 0 order and/or DIM");
+  if(Vert_NDOFs<0) throw std::invalid_argument("The number of Vertex DOFs is less than 0");
 };
 
 
-// Constructs the MultiFabs for each
-// polynomial order being used to
-// solve the problem
+// Constructs the MultiFabs for all
+// polynomial orders being used to
+// solve the problem for each entity
+// type
 //
 template<typename Integer, typename RealNum, Integer DIM>
 void hierachicalFEMeshProblemSolver<Integer,RealNum,DIM>::Set_pFEMMultiFabs()

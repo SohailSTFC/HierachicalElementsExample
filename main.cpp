@@ -2,9 +2,12 @@
 #include <AMReX_Print.H>
 #include <AMReX_MultiFab.H>
 #include <AMReX_PlotFileUtil.H>
+
+//Standard C++ libraries
 #include <cmath>
 #include <iostream>
 #include <iomanip>
+#include <string>
 #include <vector>
 #include <array>
 
@@ -47,29 +50,10 @@ int main(int argc, char* argv[]){
     amrex::Print() << "Hi AMReX version " << amrex::Version() << "\n";
 
 
-    poissonProblem MyPoisson(AMREX_SPACEDIM);
+    poissonProblem MyPoisson(AMREX_SPACEDIM,"Config.txt");
     hierachicalFEMeshProblemSolver<int,amrex::Real,AMREX_SPACEDIM>  MySolver(&MyPoisson);
 
 /*
-    //Define a multiFab
-    int Nodof=2, nod=2; 
-
-    int ncomp=Nodof*nod;
-    int nGhost=0;
-    int n_cell=16;
-    int n_node=n_cell*(pOrder_1D+1);
-    int max_grid_size=8*(pOrder_1D+1);
-
-    amrex::IntVect domElm_lo(0,0,0);
-    amrex::IntVect domElm_hi(n_cell-1,n_cell-1,n_cell-1);
-
-    amrex::Box      domain(domElm_lo,domElm_hi); //Topological structure in space
-    amrex::BoxArray ba(domain);                  //Data mapping of structure
-    ba.maxSize(max_grid_size);                   //Domain size limit per processor
-    const amrex::BoxArray& nba = amrex::convert(ba,amrex::IntVect::TheNodeVector());
-
-    amrex::DistributionMapping dm(nba);         //1-D to N-D mapping
-    amrex::MultiFab mf(nba, dm, ncomp, nGhost); //Data structure
 
     //Data for MultiFab
     amrex::RealBox  real_box({0.,0.,0.},{1.,1.,1.});//Physical Dimension of domain

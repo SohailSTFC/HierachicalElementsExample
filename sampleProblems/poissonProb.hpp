@@ -1,5 +1,8 @@
 #ifndef POISSONPROBLEM_HPP
 #define POISSONPROBLEM_HPP
+
+#include <string>
+
 #include "../include/abstractProblem.hpp"
 /**************************************\
 ! Poisson Problem Class
@@ -36,7 +39,7 @@ class poissonProblem : public abstractProblem{
     virtual void calcQpJacobian();
 };
 
-poissonProblem::poissonProblem(int DIM){};
+poissonProblem::poissonProblem(int DIM, std::string ConfigFile){};
 
 int poissonProblem::getNODOFVert(){return nodofVt;};
 int poissonProblem::getNODOFEdge(){return nodofEd;};
