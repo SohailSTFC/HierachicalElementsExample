@@ -46,13 +46,13 @@ namespace EntityMapping{
 
   AMREX_FORCE_INLINE
   std::array<int,3> EntityIterator(int I, int J, int K, int pOrder){
-    return { (I+1)%pOrder, (J+1)%pOrder, (K+1)%pOrder };
+    return { (I+1)%pOrder, (J+1)%pOrder, (K+1)%pOrder};
   };
 
 /*
   AMREX_FORCE_INLINE
-  std::array<int,3> NodeNeighborElementMapping(int I, int J, int K, int pOrder){
-    return { (I+1)%pOrder, (J+1)%pOrder, (K+1)%pOrder };
+  std::array<int,3> NodeNeighborElementMapping(){
+
   };
 
   AMREX_FORCE_INLINE
@@ -153,9 +153,8 @@ namespace TensorElementND{
                    , const std::vector<std::array<RealNum,nSampl>>           Ni1D
                    , const std::vector<std::array<RealNum,nSampl>>           dNi1D)
   {
-
   //TODO
-/*    for(Integer I=0; I<; I++){
+  /*for(Integer I=0; I<; I++){
       NiND
       dNiND
     }*/

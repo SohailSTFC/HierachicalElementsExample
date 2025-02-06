@@ -24,7 +24,7 @@ class poissonProblem : public abstractProblem{
     const int nodofVt=1, nodofEd=1, nodofFa=1, nodofVo=1;
     
   public:
-    poissonProblem(int DIM);
+    poissonProblem(int DIM, std::string ConfigFile);
 
     //The number of degrees
     //of freedom on each entity

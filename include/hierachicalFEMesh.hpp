@@ -61,6 +61,10 @@ using Vec = Eigen::VectorXd;
 ! classes must be generated
 !
 !
+! Uses element-by-element method avoiding
+! avoiding global assembly
+!
+!
 \**************************************/
 template<typename Integer, typename RealNum, Integer DIM>
 class hierachicalFEMeshProblemSolver{
@@ -166,20 +170,15 @@ hierachicalFEMeshProblemSolver<Integer,RealNum,DIM>::hierachicalFEMeshProblemSol
 template<typename Integer, typename RealNum, Integer DIM>
 hierachicalFEMeshProblemSolver<Integer,RealNum,DIM>::~hierachicalFEMeshProblemSolver()
 {
-/*
   //Solution Vectors
-  if(Vert_NDOFs > 0) VertsSolution = new amrex::MultiFab(nba, dm, Vert_NDOFs, nGhost);
+  if(Vert_NDOFs > 0) delete VertsSolution;
   for(int I=0; I<3; I++)
-    if(EFV_NDOFs[I] > 0)
-      EFVsSolution[I] = new amrex::MultiFab(nba, dm, EFV_NDOFs[0], nGhost);
+    if(EFV_NDOFs[I] > 0) delete EFVsSolution[I];
 
   //Residual Vectors
-  if(Vert_NDOFs > 0) VertsResidual = new amrex::MultiFab(nba, dm, Vert_NDOFs, nGhost);
+  if(Vert_NDOFs > 0) delete VertsResidual;
   for(int I=0; I<3; I++)
-    if(EFV_NDOFs[I] > 0)
-      EFVsResidual[I] = new amrex::MultiFab(nba, dm, EFV_NDOFs[0], nGhost);
-
-*/
+    if(EFV_NDOFs[I] > 0) delete EFVsResidual[I];
 };
 
 
